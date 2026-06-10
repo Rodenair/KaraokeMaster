@@ -18,7 +18,8 @@ export async function GET(req: NextRequest) {
   url.searchParams.set("part", "snippet");
   url.searchParams.set("type", "video");
   url.searchParams.set("maxResults", "8");
-  url.searchParams.set("q", q);
+  // Always append "karaoke" so results stay relevant regardless of user input
+  url.searchParams.set("q", q.toLowerCase().includes("karaoke") ? q : `${q} karaoke`);
   url.searchParams.set("key", apiKey);
 
   const ytRes = await fetch(url.toString(), {
