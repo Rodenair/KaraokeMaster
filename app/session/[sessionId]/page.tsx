@@ -3,9 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import VideoPlayer from "@/components/VideoPlayer";
 import QueueList from "@/components/QueueList";
 import type { Session } from "@/lib/types";
+
+const VideoSearchForm = dynamic(() => import("@/components/VideoSearchForm"), { ssr: false });
 
 const POLL_INTERVAL_MS = 7_000;
 
@@ -17,6 +20,7 @@ export default function HostPage() {
   const [notFound, setNotFound] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showAddSong, setShowAddSong] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetchSession = useCallback(async () => {
@@ -108,7 +112,6 @@ export default function HostPage() {
         className="sticky top-0 z-20 backdrop-blur-sm"
         style={{
           background: "linear-gradient(180deg, rgba(7,0,15,0.97) 0%, rgba(15,0,24,0.92) 100%)",
-          borderBottom: "1.5px solid transparent",
           backgroundClip: "padding-box",
           boxShadow: "0 1px 0 0 rgba(255,0,128,0.3)",
         }}
@@ -178,7 +181,7 @@ export default function HostPage() {
               </div>
             ) : (
               <div className="rounded-xl border border-[#2a0040] bg-[#0f0018] px-4 py-3 text-center text-sm text-[#5a3070]">
-                Queue is empty — share the join link to get songs added!
+                Queue is empty — add a song below or share the join link!
               </div>
             )}
 
@@ -187,8 +190,8 @@ export default function HostPage() {
             </p>
           </div>
 
-          {/* Queue column */}
-          <div>
+          {/* Queue + Add Song column */}
+          <div className="flex flex-col gap-3">
             <QueueList
               queue={session.queue}
               currentVideoId={session.currentVideoId}
@@ -196,6 +199,43 @@ export default function HostPage() {
               onReset={handleReset}
               loading={actionLoading}
             />
+
+            {/* ── Add Song panel ── */}
+            <div className="overflow-hidden rounded-xl" style={{ border: "1.5px solid #3a004a", background: "#0f0018" }}>
+              <button
+                onClick={() => setShowAddSong((v) => !v)}
+                className="w-full flex items-center justify-between px-4 py-3 text-left transition-colors hover:bg-white/5"
+              >
+                <span className="font-display font-bold text-white flex items-center gap-2">
+                  <span
+                    className="rounded-lg px-2 py-0.5 text-xs font-extrabold uppercase tracking-widest text-black"
+                    style={{ background: "linear-gradient(135deg,#ffd700,#ff8c00)" }}
+                  >
+                    + Add
+                  </span>
+                  Add a Song
+                </span>
+                <span className="text-[#ff0080] text-lg select-none">
+                  {showAddSong ? "▲" : "▼"}
+                </span>
+              </button>
+
+              {showAddSong && (
+                <div
+                  className="px-4 pb-4"
+                  style={{ borderTop: "1.5px solid #2a0040" }}
+                >
+                  <div className="pt-4">
+                    <VideoSearchForm
+                      sessionId={sessionId}
+                      onAdded={() => {
+                        fetchSession();
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
