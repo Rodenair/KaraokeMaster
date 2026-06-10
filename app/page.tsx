@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+const STARS = ["✨", "⭐", "🌟", "✨", "⭐"];
+
 export default function HomePage() {
   const router = useRouter();
   const [hostName, setHostName] = useState("");
@@ -28,65 +30,90 @@ export default function HomePage() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center px-4">
-      {/* Background glow */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 h-[500px] w-[500px] rounded-full bg-purple-700/20 blur-[120px]" />
-        <div className="absolute bottom-0 left-1/4 h-[300px] w-[300px] rounded-full bg-pink-700/20 blur-[100px]" />
+    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 py-10">
+      {/* ── Stage lighting blobs ── */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 h-[600px] w-[700px] rounded-full bg-[#ff0080]/20 blur-[140px]" />
+        <div className="absolute bottom-0 left-0 h-[450px] w-[450px] rounded-full bg-[#00d4ff]/15 blur-[130px]" />
+        <div className="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-[#bf00ff]/20 blur-[120px]" />
+        <div className="absolute top-1/3 right-0 h-[300px] w-[300px] rounded-full bg-[#ffd700]/10 blur-[110px]" />
       </div>
 
-      <div className="relative z-10 w-full max-w-md">
-        {/* Logo */}
-        <div className="mb-10 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-sm text-purple-300 mb-4">
-            <span className="h-2 w-2 rounded-full bg-purple-400 animate-pulse-slow" />
-            No account required
+      <div className="relative z-10 w-full max-w-sm">
+        {/* ── Branding ── */}
+        <div className="mb-8 text-center select-none">
+          {/* Twinkling stars row */}
+          <div className="flex justify-center gap-3 mb-3">
+            {STARS.map((s, i) => (
+              <span
+                key={i}
+                className="text-xl animate-twinkle"
+                style={{ animationDelay: `${i * 0.4}s` }}
+              >
+                {s}
+              </span>
+            ))}
           </div>
-          <h1 className="text-5xl font-bold tracking-tight">
-            <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
-              Modern Karaoke
-            </span>
+
+          {/* Mic icon */}
+          <div className="text-7xl mb-2 drop-shadow-[0_0_20px_rgba(255,0,128,0.8)]">🎤</div>
+
+          {/* App name */}
+          <h1
+            className="font-display text-6xl font-extrabold uppercase tracking-wide"
+            style={{
+              background: "linear-gradient(90deg,#ff0080,#ff8c00,#ffd700,#00ff88,#00d4ff,#bf00ff)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+              filter: "drop-shadow(0 0 8px rgba(255,0,128,0.5))",
+            }}
+          >
+            Videoke!
           </h1>
-          <p className="mt-3 text-slate-400">
-            Start a session. Share the link. Let everyone add songs.
-          </p>
+
+          {/* Tagline */}
+          <div className="mt-2 flex items-center justify-center gap-2">
+            <span className="text-[#ffd700] text-sm">♪</span>
+            <p className="font-display text-sm font-semibold uppercase tracking-[0.2em] text-[#ffd700]">
+              Pinoy Karaoke Night
+            </p>
+            <span className="text-[#ffd700] text-sm">♪</span>
+          </div>
         </div>
 
-        {/* Card */}
-        <div className="rounded-2xl border border-[#2d2d4e] bg-[#1a1a2e] p-8 shadow-2xl">
-          <h2 className="mb-6 text-lg font-semibold text-slate-100">
-            Start a new session
+        {/* ── Card ── */}
+        <div className="neon-card p-6 shadow-2xl">
+          <h2 className="font-display mb-5 text-center text-xl font-bold text-white">
+            🎵 Start a Session
           </h2>
 
-          <label className="block mb-1.5 text-sm text-slate-400">
-            Your name <span className="text-slate-600">(optional)</span>
+          <label className="mb-1.5 block text-sm font-semibold text-[#d0a0ff]">
+            Your name <span className="font-normal text-[#6a3a8a]">(optional)</span>
           </label>
           <input
             type="text"
             value={hostName}
             onChange={(e) => setHostName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && createSession()}
-            placeholder="e.g. Alex"
-            style={{ fontSize: "16px" }}
+            placeholder="e.g. Maria, Juan, Ate Nena…"
             maxLength={64}
-            className="mb-4 w-full rounded-lg border border-[#2d2d4e] bg-[#0f0f1a] px-4 py-3 text-slate-100 placeholder-slate-600 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+            style={{ fontSize: "16px" }}
+            className="neon-input mb-5 w-full px-4 py-3"
           />
 
-          {error && (
-            <p className="mb-3 text-sm text-red-400">{error}</p>
-          )}
+          {error && <p className="mb-3 text-sm text-red-400">{error}</p>}
 
           <button
             onClick={createSession}
             disabled={loading}
-            className="w-full rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-3 font-semibold text-white shadow-lg hover:from-purple-500 hover:to-pink-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+            className="btn-gold w-full rounded-xl py-4 text-lg uppercase shadow-lg shadow-yellow-900/40"
           >
-            {loading ? "Creating…" : "Create Session"}
+            {loading ? "Starting…" : "🎤 Host Karaoke!"}
           </button>
 
-          <p className="mt-5 text-center text-xs text-slate-600">
-            Session data lives only while the server is running.
-            Restarting clears everything.
+          <p className="mt-5 text-center text-xs text-[#5a3070]">
+            No account needed · Session data clears on server restart
           </p>
         </div>
       </div>

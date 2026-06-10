@@ -67,15 +67,11 @@ export default function HostPage() {
     return (
       <main className="flex min-h-screen items-center justify-center px-4">
         <div className="text-center">
-          <p className="text-xl text-slate-400 mb-4">Session not found</p>
-          <p className="text-sm text-slate-600 mb-6">
-            It may have been cleared after a server restart.
-          </p>
-          <Link
-            href="/"
-            className="rounded-lg bg-purple-600 px-5 py-3 text-sm font-semibold text-white hover:bg-purple-500"
-          >
-            Start a new session
+          <div className="text-5xl mb-4">😢</div>
+          <p className="text-xl font-bold text-[#d0a0ff] mb-2">Session not found</p>
+          <p className="text-sm text-[#5a3070] mb-6">It may have been cleared after a server restart.</p>
+          <Link href="/" className="btn-gold rounded-xl px-6 py-3 text-sm uppercase shadow-lg">
+            Start a New Session
           </Link>
         </div>
       </main>
@@ -85,45 +81,62 @@ export default function HostPage() {
   if (!session) {
     return (
       <main className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 rounded-full border-4 border-purple-500 border-t-transparent animate-spin" />
+        <div className="text-center">
+          <div className="text-4xl mb-3 animate-pulse-slow">🎤</div>
+          <div className="h-1 w-32 mx-auto rounded-full overflow-hidden bg-[#2a0040]">
+            <div className="h-full w-full rounded-full bg-gradient-to-r from-[#ff0080] via-[#ffd700] to-[#00d4ff] animate-marquee" />
+          </div>
+        </div>
       </main>
     );
   }
 
-  const nowPlayingTitle = session.queue[0]?.title ?? (session.currentVideoId ? `Video ${session.currentVideoId}` : null);
+  const nowPlayingTitle =
+    session.queue[0]?.title ?? (session.currentVideoId ? `Video ${session.currentVideoId}` : null);
 
   return (
     <main className="min-h-screen flex flex-col">
-      {/* Background glow */}
+      {/* ── Stage lighting ── */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[400px] w-[600px] rounded-full bg-purple-700/15 blur-[120px]" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[500px] w-[700px] rounded-full bg-[#ff0080]/15 blur-[150px]" />
+        <div className="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-[#00d4ff]/10 blur-[130px]" />
+        <div className="absolute top-1/2 left-0 h-[300px] w-[300px] rounded-full bg-[#ffd700]/8 blur-[110px]" />
       </div>
 
-      {/* ── Top nav ── */}
-      <header className="sticky top-0 z-20 border-b border-[#2d2d4e] bg-[#0f0f1a]/90 backdrop-blur-sm">
+      {/* ── Header ── */}
+      <header
+        className="sticky top-0 z-20 backdrop-blur-sm"
+        style={{
+          background: "linear-gradient(180deg, rgba(7,0,15,0.97) 0%, rgba(15,0,24,0.92) 100%)",
+          borderBottom: "1.5px solid transparent",
+          backgroundClip: "padding-box",
+          boxShadow: "0 1px 0 0 rgba(255,0,128,0.3)",
+        }}
+      >
         <div className="mx-auto max-w-6xl flex items-center justify-between gap-3 px-4 py-3">
-          {/* Left: title */}
           <div className="min-w-0">
-            <Link href="/" className="text-xs text-slate-500 hover:text-purple-400 transition-colors">
-              ← Modern Karaoke
+            <Link
+              href="/"
+              className="font-display text-xs font-bold uppercase tracking-widest text-[#ff0080] hover:text-[#ffd700] transition-colors"
+            >
+              🎤 Videoke!
             </Link>
-            <h1 className="text-base font-bold text-slate-100 truncate leading-tight">
+            <h1 className="font-display text-base font-bold text-white truncate leading-tight">
               {session.hostName ? `${session.hostName}'s Session` : "Host Session"}
             </h1>
           </div>
 
-          {/* Right: share controls */}
           <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onClick={copyJoinUrl}
-              className="min-h-[40px] rounded-lg border border-[#2d2d4e] bg-[#1a1a2e] px-3 py-2 text-sm text-slate-300 hover:border-purple-500/60 hover:text-purple-300 transition-all"
+              className="min-h-[40px] rounded-lg border border-[#3a004a] bg-[#0f0018] px-3 py-2 text-sm text-[#d0a0ff] hover:border-[#ff0080] hover:text-[#ff0080] transition-all"
             >
-              {copied ? "Copied!" : "Copy link"}
+              {copied ? "Copied! ✓" : "Copy link"}
             </button>
             <Link
               href={`/join?sessionId=${sessionId}`}
               target="_blank"
-              className="min-h-[40px] flex items-center rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 px-3 py-2 text-sm font-semibold text-white hover:from-purple-500 hover:to-pink-500 transition-all"
+              className="btn-pink min-h-[40px] flex items-center rounded-lg px-3 py-2 text-sm uppercase tracking-wide shadow-lg shadow-pink-900/40"
             >
               QR / Join
             </Link>
@@ -131,7 +144,7 @@ export default function HostPage() {
         </div>
       </header>
 
-      {/* ── Main content ── */}
+      {/* ── Content ── */}
       <div className="flex-1 mx-auto w-full max-w-6xl px-4 py-4 md:py-6">
         <div className="flex flex-col md:grid md:grid-cols-[1fr_360px] gap-4 md:gap-6">
 
@@ -139,24 +152,37 @@ export default function HostPage() {
           <div className="flex flex-col gap-3">
             <VideoPlayer videoId={session.currentVideoId} onEnded={handleNext} />
 
-            {/* Now playing bar */}
-            {nowPlayingTitle && (
-              <div className="flex items-center gap-3 rounded-xl border border-[#2d2d4e] bg-[#1a1a2e] px-4 py-3">
+            {/* Now Playing bar */}
+            {nowPlayingTitle ? (
+              <div
+                className="flex items-center gap-3 rounded-xl px-4 py-3"
+                style={{
+                  background: "linear-gradient(135deg, rgba(255,0,128,0.15), rgba(191,0,255,0.15))",
+                  border: "1.5px solid rgba(255,0,128,0.4)",
+                }}
+              >
                 {session.currentVideoId && (
                   <img
                     src={`https://img.youtube.com/vi/${session.currentVideoId}/mqdefault.jpg`}
                     alt=""
-                    className="h-10 w-[72px] flex-shrink-0 rounded object-cover"
+                    className="h-10 w-[72px] flex-shrink-0 rounded-lg object-cover"
                   />
                 )}
-                <div className="min-w-0">
-                  <p className="text-xs text-slate-500">Now playing</p>
-                  <p className="truncate font-semibold text-slate-100">{nowPlayingTitle}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold uppercase tracking-widest text-[#ff0080]">
+                    ▶ Now Playing
+                  </p>
+                  <p className="truncate font-display font-bold text-white">{nowPlayingTitle}</p>
                 </div>
+                <span className="text-xl animate-pulse-slow">🎵</span>
+              </div>
+            ) : (
+              <div className="rounded-xl border border-[#2a0040] bg-[#0f0018] px-4 py-3 text-center text-sm text-[#5a3070]">
+                Queue is empty — share the join link to get songs added!
               </div>
             )}
 
-            <p className="text-right text-xs text-slate-700">
+            <p className="text-right text-xs text-[#3a1050]">
               Auto-refreshes every {POLL_INTERVAL_MS / 1000}s
             </p>
           </div>

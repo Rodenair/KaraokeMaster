@@ -56,7 +56,7 @@ export default function AddToQueueForm({ sessionId, onAdded }: AddToQueueFormPro
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block mb-1.5 text-sm font-medium text-slate-300">
+        <label className="block mb-1.5 text-sm font-semibold text-[#d0a0ff]">
           YouTube URL or Video ID
           <span className="ml-1.5 text-xs text-slate-500 font-normal">
             (youtube.com/watch?v=… or youtu.be/…)
@@ -68,12 +68,12 @@ export default function AddToQueueForm({ sessionId, onAdded }: AddToQueueFormPro
           onChange={(e) => setInput(e.target.value)}
           placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
           required
-          className="w-full rounded-lg border border-[#2d2d4e] bg-[#0f0f1a] px-4 py-3 text-base text-slate-100 placeholder-slate-600 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+          className="neon-input w-full px-4 py-3 text-base"
         />
       </div>
 
       <div>
-        <label className="block mb-1.5 text-sm font-medium text-slate-300">
+        <label className="block mb-1.5 text-sm font-semibold text-[#d0a0ff]">
           Song title
           <span className="ml-1.5 text-xs text-slate-500 font-normal">(optional)</span>
         </label>
@@ -83,7 +83,7 @@ export default function AddToQueueForm({ sessionId, onAdded }: AddToQueueFormPro
           onChange={(e) => setTitle(e.target.value)}
           placeholder="e.g. Never Gonna Give You Up"
           maxLength={200}
-          className="w-full rounded-lg border border-[#2d2d4e] bg-[#0f0f1a] px-4 py-3 text-base text-slate-100 placeholder-slate-600 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+          className="neon-input w-full px-4 py-3 text-base"
         />
       </div>
 
@@ -102,7 +102,7 @@ export default function AddToQueueForm({ sessionId, onAdded }: AddToQueueFormPro
       <button
         type="submit"
         disabled={status === "loading" || !input.trim()}
-        className="w-full min-h-[48px] rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-3 font-semibold text-white shadow-lg hover:from-purple-500 hover:to-pink-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+        className="btn-pink w-full min-h-[48px] rounded-xl px-6 py-3 uppercase tracking-wide shadow-lg shadow-pink-900/40"
       >
         {status === "loading" ? "Adding…" : "Add to Queue"}
       </button>

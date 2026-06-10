@@ -18,11 +18,9 @@ function JoinPageInner() {
     return (
       <main className="flex min-h-screen items-center justify-center px-4">
         <div className="text-center">
-          <p className="text-slate-400 mb-4">No session ID provided.</p>
-          <Link
-            href="/"
-            className="rounded-lg bg-purple-600 px-5 py-3 text-sm font-semibold text-white hover:bg-purple-500"
-          >
+          <div className="text-5xl mb-4">🤔</div>
+          <p className="text-[#d0a0ff] mb-4">No session ID provided.</p>
+          <Link href="/" className="btn-gold rounded-xl px-5 py-3 text-sm uppercase shadow-lg">
             Go home
           </Link>
         </div>
@@ -44,34 +42,63 @@ function JoinPageInner() {
 
   return (
     <main className="min-h-screen px-4 py-8 sm:py-12">
-      {/* Background glow */}
+      {/* ── Stage lighting ── */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
-        <div className="absolute top-0 right-1/3 h-[400px] w-[400px] rounded-full bg-pink-700/15 blur-[120px]" />
-        <div className="absolute bottom-0 left-1/3 h-[300px] w-[300px] rounded-full bg-purple-700/15 blur-[100px]" />
+        <div className="absolute top-0 right-0 h-[450px] w-[450px] rounded-full bg-[#ff0080]/18 blur-[130px]" />
+        <div className="absolute bottom-0 left-0 h-[400px] w-[400px] rounded-full bg-[#00d4ff]/15 blur-[120px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[500px] rounded-full bg-[#bf00ff]/10 blur-[150px]" />
       </div>
 
       <div className="mx-auto w-full max-w-sm">
-        {/* Header */}
-        <div className="mb-6 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-pink-500/30 bg-pink-500/10 px-4 py-1.5 text-sm text-pink-300 mb-3">
-            <span className="h-2 w-2 rounded-full bg-pink-400 animate-pulse-slow" />
-            Karaoke Session
+        {/* ── Header ── */}
+        <div className="mb-6 text-center select-none">
+          <Link
+            href="/"
+            className="font-display text-xs font-bold uppercase tracking-widest text-[#ff0080] hover:text-[#ffd700] transition-colors"
+          >
+            🎤 Videoke!
+          </Link>
+
+          <div className="mt-3 flex justify-center gap-2 text-lg">
+            {["🌟", "🎵", "🎤", "🎵", "🌟"].map((e, i) => (
+              <span
+                key={i}
+                className="animate-twinkle"
+                style={{ animationDelay: `${i * 0.35}s` }}
+              >
+                {e}
+              </span>
+            ))}
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
-            Add a Song
+
+          <h1
+            className="font-display mt-2 text-4xl font-extrabold uppercase tracking-wide"
+            style={{
+              background: "linear-gradient(90deg,#ffd700,#ff8c00,#ff0080)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
+            Add a Song!
           </h1>
-          <p className="mt-2 text-sm text-slate-400">
-            Search YouTube and tap a result to add it to the queue.
+          <p className="mt-1 text-sm text-[#9060b0]">
+            Search and tap to add to the queue.
           </p>
         </div>
 
-        {/* Search form */}
-        <div className="rounded-2xl border border-[#2d2d4e] bg-[#1a1a2e] p-4 sm:p-6 mb-4">
-          <h2 className="text-base font-semibold text-slate-100 mb-4">
-            Search for a song
+        {/* ── Search card ── */}
+        <div className="neon-card p-4 sm:p-5 mb-4 shadow-2xl">
+          <h2 className="font-display mb-4 text-base font-bold text-white flex items-center gap-2">
+            <span
+              className="inline-block rounded-lg px-2 py-0.5 text-xs font-extrabold uppercase tracking-widest text-black"
+              style={{ background: "linear-gradient(135deg,#ffd700,#ff8c00)" }}
+            >
+              Search
+            </span>
             {addedCount > 0 && (
-              <span className="ml-2 text-sm text-purple-400 font-normal">
-                ({addedCount} added)
+              <span className="text-sm font-normal text-[#00ff88]">
+                {addedCount} song{addedCount > 1 ? "s" : ""} added ✓
               </span>
             )}
           </h2>
@@ -81,10 +108,10 @@ function JoinPageInner() {
           />
         </div>
 
-        {/* QR code + share */}
-        <div className="rounded-2xl border border-[#2d2d4e] bg-[#1a1a2e] p-4 sm:p-6">
-          <h2 className="text-sm font-semibold text-slate-400 mb-4 text-center uppercase tracking-wider">
-            Share this session
+        {/* ── Share / QR ── */}
+        <div className="neon-card-pink p-4 sm:p-5">
+          <h2 className="font-display mb-4 text-center text-sm font-bold uppercase tracking-[0.2em] text-[#ff0080]">
+            ⭐ Share This Session ⭐
           </h2>
           <div className="flex justify-center mb-4">
             <QRCodeDisplay value={joinUrl} size={160} />
@@ -93,18 +120,18 @@ function JoinPageInner() {
             <input
               readOnly
               value={joinUrl}
-              className="min-h-[44px] flex-1 rounded-lg border border-[#2d2d4e] bg-[#0f0f1a] px-3 py-2 text-sm font-mono text-slate-300 truncate focus:outline-none focus:border-purple-500"
+              className="neon-input min-h-[44px] flex-1 px-3 py-2 text-sm font-mono truncate"
             />
             <button
               onClick={copyUrl}
-              className="min-h-[44px] flex-shrink-0 rounded-lg border border-[#2d2d4e] bg-[#0f0f1a] px-4 py-2 text-sm text-slate-400 hover:bg-purple-600/20 hover:border-purple-500 hover:text-purple-300 transition-all"
+              className="min-h-[44px] flex-shrink-0 rounded-lg border border-[#3a004a] bg-[#07000f] px-4 py-2 text-sm text-[#d0a0ff] hover:border-[#ff0080] hover:text-[#ff0080] transition-all"
             >
-              {copied ? "Copied!" : "Copy"}
+              {copied ? "Copied! ✓" : "Copy"}
             </button>
           </div>
         </div>
 
-        <p className="mt-5 text-center text-xs text-slate-700">
+        <p className="mt-5 text-center text-xs text-[#3a1050]">
           Playback is controlled by the host.
         </p>
       </div>

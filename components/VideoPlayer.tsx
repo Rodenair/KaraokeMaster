@@ -112,12 +112,20 @@ export default function VideoPlayer({ videoId, onEnded }: VideoPlayerProps) {
 
       {/* Empty-state overlay — sits on top when there's no video */}
       {!videoId && (
-        <div className="absolute inset-0 flex items-center justify-center rounded-xl border border-[#2d2d4e] bg-[#1a1a2e]">
-          <div className="text-center px-4 text-slate-500">
-            <div className="mb-2 text-4xl">🎤</div>
-            <p className="text-sm">No video queued yet</p>
-            <p className="text-xs text-slate-600 mt-1">
-              Share the join link so participants can add songs
+        <div
+          className="absolute inset-0 flex items-center justify-center rounded-xl"
+          style={{ background: "#07000f", border: "1.5px solid #2a0040" }}
+        >
+          <div className="text-center px-4">
+            <div className="mb-3 text-5xl animate-pulse-slow">🎤</div>
+            <p
+              className="font-display text-base font-bold uppercase tracking-widest"
+              style={{ color: "#ff0080" }}
+            >
+              Waiting for a Song…
+            </p>
+            <p className="mt-1 text-xs" style={{ color: "#5a3070" }}>
+              Share the join link and let the party begin!
             </p>
           </div>
         </div>

@@ -3,25 +3,73 @@
 @tailwind utilities;
 
 :root {
-  --bg: #0f0f1a;
-  --card: #1a1a2e;
-  --border: #2d2d4e;
+  --bg:     #07000f;
+  --card:   #0f0018;
+  --pink:   #ff0080;
+  --blue:   #00d4ff;
+  --gold:   #ffd700;
+  --purple: #bf00ff;
 }
 
 body {
   background-color: var(--bg);
-  color: #e2e8f0;
+  color: #f0e6ff;
   font-family: system-ui, -apple-system, sans-serif;
 }
 
-/* Custom scrollbar for dark theme */
-::-webkit-scrollbar {
-  width: 6px;
+/* ── Gradient-border card ─────────────────────────────── */
+.neon-card {
+  background:
+    linear-gradient(var(--card), var(--card)) padding-box,
+    linear-gradient(135deg, #ff0080, #00d4ff, #ffd700, #bf00ff) border-box;
+  border: 1.5px solid transparent;
+  border-radius: 16px;
 }
-::-webkit-scrollbar-track {
-  background: var(--card);
+
+.neon-card-pink {
+  background:
+    linear-gradient(var(--card), var(--card)) padding-box,
+    linear-gradient(135deg, #ff0080, #bf00ff) border-box;
+  border: 1.5px solid transparent;
+  border-radius: 16px;
 }
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 3px;
+
+/* ── Buttons ──────────────────────────────────────────── */
+.btn-gold {
+  background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+  color: #1a0000;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  transition: filter 0.2s;
 }
+.btn-gold:hover:not(:disabled) { filter: brightness(1.15); }
+.btn-gold:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.btn-pink {
+  background: linear-gradient(135deg, #ff0080 0%, #bf00ff 100%);
+  color: #fff;
+  font-weight: 700;
+  transition: filter 0.2s;
+}
+.btn-pink:hover:not(:disabled) { filter: brightness(1.2); }
+.btn-pink:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* ── Input focus glow ─────────────────────────────────── */
+.neon-input {
+  background: #07000f;
+  border: 1.5px solid #3a004a;
+  color: #f0e6ff;
+  border-radius: 10px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.neon-input::placeholder { color: #5a3070; }
+.neon-input:focus {
+  outline: none;
+  border-color: #ff0080;
+  box-shadow: 0 0 0 3px rgba(255,0,128,0.2);
+}
+
+/* ── Scrollbar ────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 4px; }
+::-webkit-scrollbar-track  { background: var(--card); }
+::-webkit-scrollbar-thumb  { background: #4a0070; border-radius: 2px; }
