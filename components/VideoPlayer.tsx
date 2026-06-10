@@ -15,12 +15,15 @@ declare global {
 }
 
 export default function VideoPlayer({ videoId, onEnded }: VideoPlayerProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  // wrapperRef is always in the DOM — React owns it and never removes it.
+  // YouTube is mounted into a *child* node so its DOM replacement
+  // never invalidates the React-managed ref.
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YT.Player | null>(null);
   const onEndedRef = useRef(onEnded);
   const [apiReady, setApiReady] = useState(false);
 
-  // Keep the callback ref current on every render without triggering player effects
+  // Keep callback ref current without triggering player effects
   useEffect(() => {
     onEndedRef.current = onEnded;
   });
@@ -40,18 +43,36 @@ export default function VideoPlayer({ videoId, onEnded }: VideoPlayerProps) {
     window.onYouTubeIframeAPIReady = () => setApiReady(true);
   }, []);
 
-  // Create player once; update video via loadVideoById when videoId changes.
-  // onEnded is intentionally excluded from deps — it's accessed via ref so it
-  // never causes a reload of the current video.
+  // Manage player lifecycle whenever apiReady or videoId changes.
+  // onEnded is intentionally excluded — accessed via ref so it never
+  // causes a video reload.
   useEffect(() => {
-    if (!apiReady || !videoId || !containerRef.current) return;
+    if (!apiReady) return;
+
+    // Queue is empty: destroy the player so the iframe is fully removed
+    if (!videoId) {
+      if (playerRef.current) {
+        playerRef.current.destroy();
+        playerRef.current = null;
+      }
+      return;
+    }
+
+    if (!wrapperRef.current) return;
 
     if (playerRef.current) {
       playerRef.current.loadVideoById(videoId);
       return;
     }
 
-    playerRef.current = new window.YT.Player(containerRef.current, {
+    // Mount into a dedicated child node — not the React-managed wrapperRef div.
+    // This prevents YouTube's iframe-replacement from confusing React's DOM diffing.
+    const mountNode = document.createElement("div");
+    mountNode.style.width = "100%";
+    mountNode.style.height = "100%";
+    wrapperRef.current.appendChild(mountNode);
+
+    playerRef.current = new window.YT.Player(mountNode, {
       videoId,
       width: "100%",
       height: "100%",
@@ -76,6 +97,7 @@ export default function VideoPlayer({ videoId, onEnded }: VideoPlayerProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiReady, videoId]);
 
+  // Destroy on unmount
   useEffect(() => {
     return () => {
       playerRef.current?.destroy();
@@ -83,23 +105,23 @@ export default function VideoPlayer({ videoId, onEnded }: VideoPlayerProps) {
     };
   }, []);
 
-  if (!videoId) {
-    return (
-      <div className="flex aspect-video w-full items-center justify-center rounded-xl border border-[#2d2d4e] bg-[#1a1a2e] text-slate-500">
-        <div className="text-center px-4">
-          <div className="mb-2 text-4xl">🎤</div>
-          <p className="text-sm">No video queued yet</p>
-          <p className="text-xs text-slate-600 mt-1">
-            Share the join link so participants can add songs
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="relative w-full aspect-video overflow-hidden rounded-xl bg-black shadow-2xl">
-      <div ref={containerRef} className="absolute inset-0 w-full h-full" />
+      {/* Always in the DOM so React never reconciles it away */}
+      <div ref={wrapperRef} className="absolute inset-0 w-full h-full" />
+
+      {/* Empty-state overlay — sits on top when there's no video */}
+      {!videoId && (
+        <div className="absolute inset-0 flex items-center justify-center rounded-xl border border-[#2d2d4e] bg-[#1a1a2e]">
+          <div className="text-center px-4 text-slate-500">
+            <div className="mb-2 text-4xl">🎤</div>
+            <p className="text-sm">No video queued yet</p>
+            <p className="text-xs text-slate-600 mt-1">
+              Share the join link so participants can add songs
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
