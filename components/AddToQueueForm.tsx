@@ -68,7 +68,7 @@ export default function AddToQueueForm({ sessionId, onAdded }: AddToQueueFormPro
           onChange={(e) => setInput(e.target.value)}
           placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
           required
-          className="w-full rounded-lg border border-[#2d2d4e] bg-[#0f0f1a] px-4 py-3 text-slate-100 placeholder-slate-600 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+          className="w-full rounded-lg border border-[#2d2d4e] bg-[#0f0f1a] px-4 py-3 text-base text-slate-100 placeholder-slate-600 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
         />
       </div>
 
@@ -83,7 +83,7 @@ export default function AddToQueueForm({ sessionId, onAdded }: AddToQueueFormPro
           onChange={(e) => setTitle(e.target.value)}
           placeholder="e.g. Never Gonna Give You Up"
           maxLength={200}
-          className="w-full rounded-lg border border-[#2d2d4e] bg-[#0f0f1a] px-4 py-3 text-slate-100 placeholder-slate-600 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+          className="w-full rounded-lg border border-[#2d2d4e] bg-[#0f0f1a] px-4 py-3 text-base text-slate-100 placeholder-slate-600 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
         />
       </div>
 
@@ -102,7 +102,7 @@ export default function AddToQueueForm({ sessionId, onAdded }: AddToQueueFormPro
       <button
         type="submit"
         disabled={status === "loading" || !input.trim()}
-        className="w-full rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-3 font-semibold text-white shadow-lg hover:from-purple-500 hover:to-pink-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+        className="w-full min-h-[48px] rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-3 font-semibold text-white shadow-lg hover:from-purple-500 hover:to-pink-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
       >
         {status === "loading" ? "Adding…" : "Add to Queue"}
       </button>

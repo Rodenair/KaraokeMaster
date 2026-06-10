@@ -40,7 +40,7 @@ export default function QueueList({
             onClick={onNext}
             disabled={loading || queue.length === 0}
             title="Skip to next song"
-            className="rounded-lg border border-[#2d2d4e] bg-[#0f0f1a] px-3 py-1.5 text-sm text-slate-300 hover:bg-purple-600 hover:border-purple-600 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            className="min-h-[40px] rounded-lg border border-[#2d2d4e] bg-[#0f0f1a] px-3 py-1.5 text-sm text-slate-300 hover:bg-purple-600 hover:border-purple-600 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all"
           >
             Skip →
           </button>
@@ -48,7 +48,7 @@ export default function QueueList({
             onClick={onReset}
             disabled={loading}
             title="Clear the entire queue"
-            className="rounded-lg border border-[#2d2d4e] bg-[#0f0f1a] px-3 py-1.5 text-sm text-red-400 hover:bg-red-600/20 hover:border-red-500 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            className="min-h-[40px] rounded-lg border border-[#2d2d4e] bg-[#0f0f1a] px-3 py-1.5 text-sm text-red-400 hover:bg-red-600/20 hover:border-red-500 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
           >
             Clear
           </button>

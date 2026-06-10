@@ -6,20 +6,23 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import AddToQueueForm from "@/components/AddToQueueForm";
 
-// QRCodeDisplay uses qrcode.react which is client-only
 const QRCodeDisplay = dynamic(() => import("@/components/QRCodeDisplay"), { ssr: false });
 
 function JoinPageInner() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("sessionId") ?? "";
   const [addedCount, setAddedCount] = useState(0);
+  const [copied, setCopied] = useState(false);
 
   if (!sessionId) {
     return (
       <main className="flex min-h-screen items-center justify-center px-4">
         <div className="text-center">
           <p className="text-slate-400 mb-4">No session ID provided.</p>
-          <Link href="/" className="rounded-lg bg-purple-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-purple-500">
+          <Link
+            href="/"
+            className="rounded-lg bg-purple-600 px-5 py-3 text-sm font-semibold text-white hover:bg-purple-500"
+          >
             Go home
           </Link>
         </div>
@@ -32,18 +35,25 @@ function JoinPageInner() {
       ? `${window.location.origin}/join?sessionId=${sessionId}`
       : `https://example.com/join?sessionId=${sessionId}`;
 
+  function copyUrl() {
+    navigator.clipboard.writeText(joinUrl).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
   return (
-    <main className="min-h-screen px-4 py-10">
+    <main className="min-h-screen px-4 py-8 sm:py-12">
       {/* Background glow */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
         <div className="absolute top-0 right-1/3 h-[400px] w-[400px] rounded-full bg-pink-700/15 blur-[120px]" />
         <div className="absolute bottom-0 left-1/3 h-[300px] w-[300px] rounded-full bg-purple-700/15 blur-[100px]" />
       </div>
 
-      <div className="mx-auto max-w-md">
+      <div className="mx-auto w-full max-w-sm">
         {/* Header */}
-        <div className="mb-8 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-pink-500/30 bg-pink-500/10 px-4 py-1.5 text-sm text-pink-300 mb-4">
+        <div className="mb-6 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-pink-500/30 bg-pink-500/10 px-4 py-1.5 text-sm text-pink-300 mb-3">
             <span className="h-2 w-2 rounded-full bg-pink-400 animate-pulse-slow" />
             Karaoke Session
           </div>
@@ -51,40 +61,17 @@ function JoinPageInner() {
             Add a Song
           </h1>
           <p className="mt-2 text-sm text-slate-400">
-            Paste a YouTube URL to add it to the host&apos;s queue.
+            Paste a YouTube URL to add it to the queue.
           </p>
         </div>
 
-        {/* QR code + share */}
-        <div className="rounded-2xl border border-[#2d2d4e] bg-[#1a1a2e] p-6 mb-6">
-          <h2 className="text-sm font-semibold text-slate-400 mb-4 text-center uppercase tracking-wider">
-            Share this session
-          </h2>
-          <div className="flex justify-center mb-4">
-            <QRCodeDisplay value={joinUrl} size={180} />
-          </div>
-          <div className="flex items-center gap-2">
-            <input
-              readOnly
-              value={joinUrl}
-              className="flex-1 rounded-lg border border-[#2d2d4e] bg-[#0f0f1a] px-3 py-2 text-sm font-mono text-slate-300 truncate focus:outline-none focus:border-purple-500"
-            />
-            <button
-              onClick={() => navigator.clipboard.writeText(joinUrl)}
-              className="rounded-lg border border-[#2d2d4e] bg-[#0f0f1a] px-3 py-2 text-sm text-slate-400 hover:bg-purple-600/20 hover:border-purple-500 hover:text-purple-300 transition-all whitespace-nowrap"
-            >
-              Copy
-            </button>
-          </div>
-        </div>
-
-        {/* Add to queue form */}
-        <div className="rounded-2xl border border-[#2d2d4e] bg-[#1a1a2e] p-6">
-          <h2 className="text-lg font-semibold text-slate-100 mb-5">
+        {/* Add to queue form — first on mobile so it's immediately visible */}
+        <div className="rounded-2xl border border-[#2d2d4e] bg-[#1a1a2e] p-4 sm:p-6 mb-4">
+          <h2 className="text-base font-semibold text-slate-100 mb-4">
             Queue a song
             {addedCount > 0 && (
               <span className="ml-2 text-sm text-purple-400 font-normal">
-                ({addedCount} added this session)
+                ({addedCount} added)
               </span>
             )}
           </h2>
@@ -94,8 +81,31 @@ function JoinPageInner() {
           />
         </div>
 
-        <p className="mt-6 text-center text-xs text-slate-700">
-          Playback is controlled by the host. Your addition will appear in the host&apos;s queue.
+        {/* QR code + share — secondary on mobile */}
+        <div className="rounded-2xl border border-[#2d2d4e] bg-[#1a1a2e] p-4 sm:p-6">
+          <h2 className="text-sm font-semibold text-slate-400 mb-4 text-center uppercase tracking-wider">
+            Share this session
+          </h2>
+          <div className="flex justify-center mb-4">
+            <QRCodeDisplay value={joinUrl} size={160} />
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              readOnly
+              value={joinUrl}
+              className="min-h-[44px] flex-1 rounded-lg border border-[#2d2d4e] bg-[#0f0f1a] px-3 py-2 text-sm font-mono text-slate-300 truncate focus:outline-none focus:border-purple-500"
+            />
+            <button
+              onClick={copyUrl}
+              className="min-h-[44px] flex-shrink-0 rounded-lg border border-[#2d2d4e] bg-[#0f0f1a] px-4 py-2 text-sm text-slate-400 hover:bg-purple-600/20 hover:border-purple-500 hover:text-purple-300 transition-all"
+            >
+              {copied ? "Copied!" : "Copy"}
+            </button>
+          </div>
+        </div>
+
+        <p className="mt-5 text-center text-xs text-slate-700">
+          Playback is controlled by the host.
         </p>
       </div>
     </main>

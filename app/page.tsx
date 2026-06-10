@@ -67,6 +67,7 @@ export default function HomePage() {
             onChange={(e) => setHostName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && createSession()}
             placeholder="e.g. Alex"
+            style={{ fontSize: "16px" }}
             maxLength={64}
             className="mb-4 w-full rounded-lg border border-[#2d2d4e] bg-[#0f0f1a] px-4 py-3 text-slate-100 placeholder-slate-600 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
           />
