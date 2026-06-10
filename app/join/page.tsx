@@ -4,9 +4,9 @@ import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import AddToQueueForm from "@/components/AddToQueueForm";
 
 const QRCodeDisplay = dynamic(() => import("@/components/QRCodeDisplay"), { ssr: false });
+const VideoSearchForm = dynamic(() => import("@/components/VideoSearchForm"), { ssr: false });
 
 function JoinPageInner() {
   const searchParams = useSearchParams();
@@ -61,27 +61,27 @@ function JoinPageInner() {
             Add a Song
           </h1>
           <p className="mt-2 text-sm text-slate-400">
-            Paste a YouTube URL to add it to the queue.
+            Search YouTube and tap a result to add it to the queue.
           </p>
         </div>
 
-        {/* Add to queue form — first on mobile so it's immediately visible */}
+        {/* Search form */}
         <div className="rounded-2xl border border-[#2d2d4e] bg-[#1a1a2e] p-4 sm:p-6 mb-4">
           <h2 className="text-base font-semibold text-slate-100 mb-4">
-            Queue a song
+            Search for a song
             {addedCount > 0 && (
               <span className="ml-2 text-sm text-purple-400 font-normal">
                 ({addedCount} added)
               </span>
             )}
           </h2>
-          <AddToQueueForm
+          <VideoSearchForm
             sessionId={sessionId}
             onAdded={() => setAddedCount((n) => n + 1)}
           />
         </div>
 
-        {/* QR code + share — secondary on mobile */}
+        {/* QR code + share */}
         <div className="rounded-2xl border border-[#2d2d4e] bg-[#1a1a2e] p-4 sm:p-6">
           <h2 className="text-sm font-semibold text-slate-400 mb-4 text-center uppercase tracking-wider">
             Share this session

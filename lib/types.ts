@@ -15,3 +15,10 @@ export interface Session {
 }
 
 export type SessionPublic = Omit<Session, "queue"> & { queue: QueueItem[] };
+
+export interface SearchResult {
+  videoId: string;
+  title: string;
+  thumbnail: string;
+  channelTitle: string;
+}
