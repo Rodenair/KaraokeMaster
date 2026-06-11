@@ -153,11 +153,13 @@ export default function HostPage() {
 
           {/* Player column */}
           <div className="flex flex-col gap-3">
-            <VideoPlayer
-              videoId={session.currentVideoId}
-              onEnded={handleNext}
-              title={nowPlayingTitle ?? undefined}
-            />
+            <div className="sticky top-16 z-10 md:static">
+              <VideoPlayer
+                videoId={session.currentVideoId}
+                onEnded={handleNext}
+                title={nowPlayingTitle ?? undefined}
+              />
+            </div>
 
             {/* Now Playing bar */}
             {nowPlayingTitle ? (
