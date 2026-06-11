@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 interface VideoPlayerProps {
   videoId: string | undefined;
   onEnded?: () => void;
+  title?: string;
 }
 
 declare global {
@@ -14,7 +15,7 @@ declare global {
   }
 }
 
-export default function VideoPlayer({ videoId, onEnded }: VideoPlayerProps) {
+export default function VideoPlayer({ videoId, onEnded, title }: VideoPlayerProps) {
   // wrapperRef is always in the DOM — React owns it and never removes it.
   // YouTube is mounted into a *child* node so its DOM replacement
   // never invalidates the React-managed ref.
@@ -22,6 +23,7 @@ export default function VideoPlayer({ videoId, onEnded }: VideoPlayerProps) {
   const playerRef = useRef<YT.Player | null>(null);
   const onEndedRef = useRef(onEnded);
   const [apiReady, setApiReady] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Keep callback ref current without triggering player effects
   useEffect(() => {
@@ -105,8 +107,22 @@ export default function VideoPlayer({ videoId, onEnded }: VideoPlayerProps) {
     };
   }, []);
 
+  // Escape key exits fullscreen
+  useEffect(() => {
+    if (!isFullscreen) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setIsFullscreen(false);
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [isFullscreen]);
+
+  const outerClass = isFullscreen
+    ? "fixed inset-0 z-[100] bg-black transition-all duration-300"
+    : "group relative w-full aspect-video overflow-hidden rounded-xl bg-black shadow-2xl transition-all duration-300";
+
   return (
-    <div className="relative w-full aspect-video overflow-hidden rounded-xl bg-black shadow-2xl">
+    <div className={outerClass}>
       {/* Always in the DOM so React never reconciles it away */}
       <div ref={wrapperRef} className="absolute inset-0 w-full h-full" />
 
@@ -128,6 +144,48 @@ export default function VideoPlayer({ videoId, onEnded }: VideoPlayerProps) {
               Share the join link and let the party begin!
             </p>
           </div>
+        </div>
+      )}
+
+      {/* Enter-fullscreen button — only when a video is active */}
+      {videoId && !isFullscreen && (
+        <button
+          onClick={() => setIsFullscreen(true)}
+          aria-label="Enter fullscreen"
+          className="absolute top-2 right-2 z-10 flex items-center justify-center h-9 w-9 rounded-lg bg-black/60 text-white opacity-0 group-hover:opacity-100 sm:opacity-100 hover:bg-black/80 transition-all pointer-events-auto"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 3 21 3 21 9" /><polyline points="9 21 3 21 3 15" />
+            <line x1="21" y1="3" x2="14" y2="10" /><line x1="3" y1="21" x2="10" y2="14" />
+          </svg>
+        </button>
+      )}
+
+      {/* Fullscreen overlay — song title + exit button */}
+      {isFullscreen && (
+        <div
+          className="absolute bottom-0 left-0 right-0 z-10 flex items-center justify-between px-5 py-4 pointer-events-auto"
+          style={{ background: "linear-gradient(0deg, rgba(0,0,0,0.85) 0%, transparent 100%)" }}
+        >
+          <div className="min-w-0 flex-1 mr-4">
+            {title && (
+              <>
+                <p className="text-xs font-bold uppercase tracking-widest text-[#ff0080]">▶ Now Playing</p>
+                <p className="truncate font-display font-bold text-white text-lg">{title}</p>
+              </>
+            )}
+          </div>
+          <button
+            onClick={() => setIsFullscreen(false)}
+            aria-label="Exit fullscreen"
+            className="flex-shrink-0 flex items-center gap-2 rounded-lg px-4 py-2 bg-black/70 text-white text-sm font-bold border border-white/20 hover:bg-white/20 transition-all"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="4 14 10 14 10 20" /><polyline points="20 10 14 10 14 4" />
+              <line x1="10" y1="14" x2="3" y2="21" /><line x1="21" y1="3" x2="14" y2="10" />
+            </svg>
+            Exit Fullscreen
+          </button>
         </div>
       )}
     </div>
