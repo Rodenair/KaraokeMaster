@@ -163,6 +163,7 @@ export default function HostPage() {
               <VideoPlayer
                 videoId={session.currentVideoId}
                 onEnded={handleNext}
+                onNext={handleNext}
                 title={nowPlayingTitle ?? undefined}
                 onFullscreenChange={setPlayerFullscreen}
               />

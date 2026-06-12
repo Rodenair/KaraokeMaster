@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 interface VideoPlayerProps {
   videoId: string | undefined;
   onEnded?: () => void;
+  onNext?: () => void;
   title?: string;
   onFullscreenChange?: (isFullscreen: boolean) => void;
 }
@@ -16,7 +17,7 @@ declare global {
   }
 }
 
-export default function VideoPlayer({ videoId, onEnded, title, onFullscreenChange }: VideoPlayerProps) {
+export default function VideoPlayer({ videoId, onEnded, onNext, title, onFullscreenChange }: VideoPlayerProps) {
   // wrapperRef is always in the DOM — React owns it and never removes it.
   // YouTube is mounted into a *child* node so its DOM replacement
   // never invalidates the React-managed ref.
@@ -149,10 +150,19 @@ export default function VideoPlayer({ videoId, onEnded, title, onFullscreenChang
     <div
       className={outerClass}
       onMouseMove={isFullscreen ? resetHideTimer : undefined}
-      onTouchStart={isFullscreen ? resetHideTimer : undefined}
     >
       {/* Always in the DOM so React never reconciles it away */}
       <div ref={wrapperRef} className="absolute inset-0 w-full h-full" />
+
+      {/* Transparent capture layer — sits above the iframe in fullscreen so touch/click
+          events aren't swallowed by the iframe's separate browsing context */}
+      {isFullscreen && (
+        <div
+          className="absolute inset-0 z-[5]"
+          onClick={resetHideTimer}
+          onTouchStart={resetHideTimer}
+        />
+      )}
 
       {/* Empty-state overlay — sits on top when there's no video */}
       {!videoId && (
@@ -203,17 +213,32 @@ export default function VideoPlayer({ videoId, onEnded, title, onFullscreenChang
               </>
             )}
           </div>
-          <button
-            onClick={() => exitFullscreen()}
-            aria-label="Exit fullscreen"
-            className="flex-shrink-0 flex items-center gap-2 rounded-lg px-4 py-2 bg-black/70 text-white text-sm font-bold border border-white/20 hover:bg-white/20 transition-all"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="4 14 10 14 10 20" /><polyline points="20 10 14 10 14 4" />
-              <line x1="10" y1="14" x2="3" y2="21" /><line x1="21" y1="3" x2="14" y2="10" />
-            </svg>
-            Exit Fullscreen
-          </button>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {/* Skip to next */}
+            {onNext && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onNext(); }}
+                aria-label="Skip to next song"
+                className="flex items-center justify-center h-11 w-11 rounded-xl bg-black/70 text-white border border-white/20 hover:bg-white/20 active:scale-95 transition-all"
+              >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="5 4 15 12 5 20 5 4" fill="currentColor" stroke="none" />
+                  <line x1="19" y1="5" x2="19" y2="19" />
+                </svg>
+              </button>
+            )}
+            {/* Exit fullscreen */}
+            <button
+              onClick={(e) => { e.stopPropagation(); exitFullscreen(); }}
+              aria-label="Exit fullscreen"
+              className="flex items-center justify-center h-11 w-11 rounded-xl bg-black/70 text-white border border-white/20 hover:bg-white/20 active:scale-95 transition-all"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="4 14 10 14 10 20" /><polyline points="20 10 14 10 14 4" />
+                <line x1="10" y1="14" x2="3" y2="21" /><line x1="21" y1="3" x2="14" y2="10" />
+              </svg>
+            </button>
+          </div>
         </div>
       )}
     </div>
