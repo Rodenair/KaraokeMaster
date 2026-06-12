@@ -1,9 +1,10 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import type { QueueItem } from "@/lib/types";
 
 const QRCodeDisplay = dynamic(() => import("@/components/QRCodeDisplay"), { ssr: false });
 const VideoSearchForm = dynamic(() => import("@/components/VideoSearchForm"), { ssr: false });
@@ -13,6 +14,35 @@ function JoinPageInner() {
   const sessionId = searchParams.get("sessionId") ?? "";
   const [addedCount, setAddedCount] = useState(0);
   const [copied, setCopied] = useState(false);
+
+  // Queue panel
+  const [showQueue, setShowQueue] = useState(false);
+  const [queueItems, setQueueItems] = useState<QueueItem[]>([]);
+  const [currentVideoId, setCurrentVideoId] = useState<string | undefined>();
+  const [queueLoading, setQueueLoading] = useState(false);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  async function fetchQueue() {
+    try {
+      const res = await fetch(`/api/sessions/${sessionId}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      setQueueItems(data.queue ?? []);
+      setCurrentVideoId(data.currentVideoId);
+    } catch { /* ignore network errors */ }
+  }
+
+  useEffect(() => {
+    if (!showQueue) {
+      if (pollRef.current) clearInterval(pollRef.current);
+      return;
+    }
+    setQueueLoading(true);
+    fetchQueue().finally(() => setQueueLoading(false));
+    pollRef.current = setInterval(fetchQueue, 7000);
+    return () => { if (pollRef.current) clearInterval(pollRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showQueue]);
 
   if (!sessionId) {
     return (
@@ -106,6 +136,71 @@ function JoinPageInner() {
             sessionId={sessionId}
             onAdded={() => setAddedCount((n) => n + 1)}
           />
+        </div>
+
+        {/* ── Queue ── */}
+        <div className="mb-4 overflow-hidden rounded-xl" style={{ border: "1.5px solid #3a004a", background: "#0f0018" }}>
+          <button
+            onClick={() => setShowQueue((v) => !v)}
+            className="w-full flex items-center justify-between px-4 py-3 text-left transition-colors hover:bg-white/5"
+          >
+            <span className="font-display font-bold text-white flex items-center gap-2">
+              <span
+                className="rounded-lg px-2 py-0.5 text-xs font-extrabold uppercase tracking-widest text-black"
+                style={{ background: "linear-gradient(135deg,#ff0080,#bf00ff)", color: "#fff" }}
+              >
+                🎵
+              </span>
+              View Queue
+              {queueItems.length > 0 && (
+                <span className="text-xs font-normal text-[#6a3a8a]">
+                  {queueItems.length} song{queueItems.length !== 1 ? "s" : ""}
+                </span>
+              )}
+            </span>
+            <span className="text-[#ff0080] text-lg select-none">{showQueue ? "▲" : "▼"}</span>
+          </button>
+
+          {showQueue && (
+            <div style={{ borderTop: "1.5px solid #2a0040" }}>
+              {queueLoading && queueItems.length === 0 ? (
+                <div className="flex justify-center py-6">
+                  <div className="h-5 w-5 rounded-full border-2 border-[#ff0080] border-t-transparent animate-spin" />
+                </div>
+              ) : queueItems.length === 0 ? (
+                <p className="py-6 text-center text-sm text-[#5a3070]">Queue is empty</p>
+              ) : (
+                <ul className="flex flex-col divide-y divide-[#1a0028]">
+                  {queueItems.map((item, idx) => {
+                    const isNow = item.videoId === currentVideoId && idx === 0;
+                    return (
+                      <li key={item.id} className="flex items-center gap-3 px-3 py-2.5">
+                        <img
+                          src={`https://img.youtube.com/vi/${item.videoId}/mqdefault.jpg`}
+                          alt=""
+                          className="h-11 w-[72px] flex-shrink-0 rounded-lg object-cover"
+                        />
+                        <div className="min-w-0 flex-1">
+                          {isNow && (
+                            <p className="text-[10px] font-extrabold uppercase tracking-widest text-[#ff0080] mb-0.5">
+                              ▶ Now Playing
+                            </p>
+                          )}
+                          <p className="truncate text-sm font-semibold text-[#f0e6ff] leading-snug">
+                            {item.title ?? `Song ${idx + 1}`}
+                          </p>
+                        </div>
+                        {!isNow && (
+                          <span className="flex-shrink-0 text-xs text-[#3a1050] font-mono">#{idx + 1}</span>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+              <p className="px-4 py-2 text-right text-[10px] text-[#2a1040]">Auto-refreshes every 7s</p>
+            </div>
+          )}
         </div>
 
         {/* ── Share / QR ── */}
