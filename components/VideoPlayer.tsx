@@ -27,10 +27,20 @@ export default function VideoPlayer({ videoId, onEnded, onNext, title, onFullscr
   const [apiReady, setApiReady] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControls, setShowControls] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function enterFullscreen() { setIsFullscreen(true);  onFullscreenChange?.(true);  }
   function exitFullscreen()  { setIsFullscreen(false); onFullscreenChange?.(false); }
+
+  function togglePlayPause() {
+    if (!playerRef.current) return;
+    if (isPlaying) {
+      playerRef.current.pauseVideo();
+    } else {
+      playerRef.current.playVideo();
+    }
+  }
 
   function resetHideTimer() {
     if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
@@ -70,6 +80,7 @@ export default function VideoPlayer({ videoId, onEnded, onNext, title, onFullscr
         playerRef.current.destroy();
         playerRef.current = null;
       }
+      setIsPlaying(false);
       return;
     }
 
@@ -103,7 +114,13 @@ export default function VideoPlayer({ videoId, onEnded, onNext, title, onFullscr
       },
       events: {
         onStateChange(event: YT.OnStateChangeEvent) {
-          if (event.data === window.YT.PlayerState.ENDED) {
+          const s = event.data;
+          if (s === window.YT.PlayerState.PLAYING) {
+            setIsPlaying(true);
+          } else if (s === window.YT.PlayerState.PAUSED || s === window.YT.PlayerState.ENDED) {
+            setIsPlaying(false);
+          }
+          if (s === window.YT.PlayerState.ENDED) {
             onEndedRef.current?.();
           }
         },
@@ -214,6 +231,24 @@ export default function VideoPlayer({ videoId, onEnded, onNext, title, onFullscr
             )}
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
+            {/* Play / Pause */}
+            <button
+              onClick={(e) => { e.stopPropagation(); togglePlayPause(); }}
+              aria-label={isPlaying ? "Pause" : "Play"}
+              className="flex items-center justify-center h-11 w-11 rounded-xl bg-black/70 text-white border border-white/20 hover:bg-white/20 active:scale-95 transition-all"
+            >
+              {isPlaying ? (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <rect x="5" y="4" width="4" height="16" rx="1" />
+                  <rect x="15" y="4" width="4" height="16" rx="1" />
+                </svg>
+              ) : (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="5 3 19 12 5 21 5 3" />
+                </svg>
+              )}
+            </button>
+
             {/* Skip to next */}
             {onNext && (
               <button
