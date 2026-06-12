@@ -21,6 +21,7 @@ export default function HostPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showAddSong, setShowAddSong] = useState(false);
+  const [playerFullscreen, setPlayerFullscreen] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetchSession = useCallback(async () => {
@@ -157,12 +158,13 @@ export default function HostPage() {
             <div className="pb-[56.25vw] md:hidden" aria-hidden="true" />
 
             {/* Player: fixed below the header on mobile so it never scrolls away;
-                reverts to in-flow on md+ where the two-column layout handles it */}
-            <div className="fixed top-16 left-0 right-0 z-10 md:static">
+                z-index is boosted above the header (z-20) when fullscreen is active */}
+            <div className={`fixed top-16 left-0 right-0 md:static ${playerFullscreen ? "z-[150]" : "z-10"}`}>
               <VideoPlayer
                 videoId={session.currentVideoId}
                 onEnded={handleNext}
                 title={nowPlayingTitle ?? undefined}
+                onFullscreenChange={setPlayerFullscreen}
               />
             </div>
 

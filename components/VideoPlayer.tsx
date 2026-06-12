@@ -6,6 +6,7 @@ interface VideoPlayerProps {
   videoId: string | undefined;
   onEnded?: () => void;
   title?: string;
+  onFullscreenChange?: (isFullscreen: boolean) => void;
 }
 
 declare global {
@@ -15,7 +16,7 @@ declare global {
   }
 }
 
-export default function VideoPlayer({ videoId, onEnded, title }: VideoPlayerProps) {
+export default function VideoPlayer({ videoId, onEnded, title, onFullscreenChange }: VideoPlayerProps) {
   // wrapperRef is always in the DOM — React owns it and never removes it.
   // YouTube is mounted into a *child* node so its DOM replacement
   // never invalidates the React-managed ref.
@@ -26,6 +27,9 @@ export default function VideoPlayer({ videoId, onEnded, title }: VideoPlayerProp
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControls, setShowControls] = useState(false);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function enterFullscreen() { setIsFullscreen(true);  onFullscreenChange?.(true);  }
+  function exitFullscreen()  { setIsFullscreen(false); onFullscreenChange?.(false); }
 
   function resetHideTimer() {
     if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
@@ -128,7 +132,7 @@ export default function VideoPlayer({ videoId, onEnded, title }: VideoPlayerProp
     hideTimerRef.current = setTimeout(() => setShowControls(false), 3000);
 
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setIsFullscreen(false);
+      if (e.key === "Escape") exitFullscreen();
     }
     document.addEventListener("keydown", onKey);
     return () => {
@@ -174,7 +178,7 @@ export default function VideoPlayer({ videoId, onEnded, title }: VideoPlayerProp
       {/* Enter-fullscreen button — only when a video is active */}
       {videoId && !isFullscreen && (
         <button
-          onClick={() => setIsFullscreen(true)}
+          onClick={() => enterFullscreen()}
           aria-label="Enter fullscreen"
           className="absolute top-2 right-2 z-10 flex items-center justify-center h-9 w-9 rounded-lg bg-black/60 text-white opacity-0 group-hover:opacity-100 sm:opacity-100 hover:bg-black/80 transition-all pointer-events-auto"
         >
@@ -200,7 +204,7 @@ export default function VideoPlayer({ videoId, onEnded, title }: VideoPlayerProp
             )}
           </div>
           <button
-            onClick={() => setIsFullscreen(false)}
+            onClick={() => exitFullscreen()}
             aria-label="Exit fullscreen"
             className="flex-shrink-0 flex items-center gap-2 rounded-lg px-4 py-2 bg-black/70 text-white text-sm font-bold border border-white/20 hover:bg-white/20 transition-all"
           >
