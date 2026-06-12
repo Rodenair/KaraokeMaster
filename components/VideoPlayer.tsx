@@ -24,6 +24,14 @@ export default function VideoPlayer({ videoId, onEnded, title }: VideoPlayerProp
   const onEndedRef = useRef(onEnded);
   const [apiReady, setApiReady] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showControls, setShowControls] = useState(false);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function resetHideTimer() {
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    setShowControls(true);
+    hideTimerRef.current = setTimeout(() => setShowControls(false), 3000);
+  }
 
   // Keep callback ref current without triggering player effects
   useEffect(() => {
@@ -104,25 +112,41 @@ export default function VideoPlayer({ videoId, onEnded, title }: VideoPlayerProp
     return () => {
       playerRef.current?.destroy();
       playerRef.current = null;
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
     };
   }, []);
 
-  // Escape key exits fullscreen
+  // Escape key exits fullscreen; show controls briefly on enter, clean up on exit
   useEffect(() => {
-    if (!isFullscreen) return;
+    if (!isFullscreen) {
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+      setShowControls(false);
+      return;
+    }
+    // Briefly reveal controls when entering fullscreen so user sees the exit button
+    setShowControls(true);
+    hideTimerRef.current = setTimeout(() => setShowControls(false), 3000);
+
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") setIsFullscreen(false);
     }
     document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    };
   }, [isFullscreen]);
 
   const outerClass = isFullscreen
-    ? "fixed inset-0 z-[100] bg-black transition-all duration-300"
+    ? `fixed inset-0 z-[100] bg-black transition-all duration-300${showControls ? "" : " cursor-none"}`
     : "group relative w-full aspect-video overflow-hidden rounded-xl bg-black shadow-2xl transition-all duration-300";
 
   return (
-    <div className={outerClass}>
+    <div
+      className={outerClass}
+      onMouseMove={isFullscreen ? resetHideTimer : undefined}
+      onTouchStart={isFullscreen ? resetHideTimer : undefined}
+    >
       {/* Always in the DOM so React never reconciles it away */}
       <div ref={wrapperRef} className="absolute inset-0 w-full h-full" />
 
@@ -161,10 +185,10 @@ export default function VideoPlayer({ videoId, onEnded, title }: VideoPlayerProp
         </button>
       )}
 
-      {/* Fullscreen overlay — song title + exit button */}
+      {/* Fullscreen overlay — fades in on interaction, auto-hides after 3 s */}
       {isFullscreen && (
         <div
-          className="absolute bottom-0 left-0 right-0 z-10 flex items-center justify-between px-5 py-4 pointer-events-auto"
+          className={`absolute bottom-0 left-0 right-0 z-10 flex items-center justify-between px-5 py-4 transition-opacity duration-300 ${showControls ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
           style={{ background: "linear-gradient(0deg, rgba(0,0,0,0.85) 0%, transparent 100%)" }}
         >
           <div className="min-w-0 flex-1 mr-4">
